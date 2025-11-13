@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ashreya To-Do App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body class="min-h-screen flex flex-col justify-center items-center bg-slate-950 text-gray-800 px-2">
+
+    <div class="bg-slate-900 shadow-lg rounded p-6 w-full max-w-xl">
+        <!-- Heading -->
+        <h1 class="text-xl font-semibold text-slate-700 text-center mb-6">
+             Ashreya To-Do App
+        </h1>
+
+        <!-- Input Section -->
+        <div class="flex items-center gap-2 mb-6">
+            <input id="taskInput" type="text" placeholder="Enter your task..."
+                class="flex-1  text-white/80 border  border-gray-300 rounded p-1  pl-2 focus:outline-none focus:ring-0.5 focus:ring-blue-200" />
+
+            <button id="addTaskBtn"
+                class=" text-[14px] bg-blue-500 text-white px-4 py-1.5 rounded hover:bg-blue-600 flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Add
+            </button>
+        </div>
+
+        <!-- Task List -->
+        <section id="taskList" class="space-y-4">
+            <!-- Items appear here from JS -->
+        </section>
+    </div>
+
+    <!-- Template for each Task -->
+    <template id="taskTemplate">
+        <div class="flex justify-between items-center bg-gray-100/80 p-4 rounded shadow">
+            <div>
+                <p class="font-semibold taskText">Task name</p>
+                <p class="text-[12px] text-gray-500 date">date</p>
+                <p class="text-[12px] text-gray-500 time">time</p>
+            </div>
+
+            <div class="flex gap-2">
+                <button class="saveBtn bg-green-500 text-white/80 px-2 py-1 rounded hover:bg-green-400">
+                    Save
+                </button>
+                <button class="deleteBtn bg-red-500 text-white/80 px-2 py-1 rounded hover:bg-red-400">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- JavaScript -->
+    <script>
+        const taskInput = document.getElementById("taskInput");
+        const addTaskBtn = document.getElementById("addTaskBtn");
+        const taskList = document.getElementById("taskList");
+        const template = document.getElementById("taskTemplate");
+
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        // -------------------------
+        //  SAVE TO LOCAL STORAGE
+        // -------------------------
+        function saveToLocal() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // -------------------------
+        //  RENDER TASKS ON SCREEN
+        // -------------------------
+        function renderTasks() {
+            taskList.innerHTML = "";
+
+            tasks.forEach((task, index) => {
+                const clone = template.content.cloneNode(true);
+
+                clone.querySelector(".taskText").textContent = task.text;
+                clone.querySelector(".date").textContent = " " + task.date;
+                clone.querySelector(".time").textContent = " " + task.time;
+
+                // Delete Button
+                clone.querySelector(".deleteBtn").addEventListener("click", () => {
+                    tasks.splice(index, 1);
+                    saveToLocal();
+                    renderTasks();
+                });
+
+                // Save Button (Optional)
+                clone.querySelector(".saveBtn").addEventListener("click", () => {
+                    alert("Task Saved Successfully!");
+                });
+
+                taskList.appendChild(clone);
+            });
+        }
+
+        // -------------------------
+        //  ADD TASK
+        // -------------------------
+        addTaskBtn.addEventListener("click", () => {
+            const text = taskInput.value.trim();
+            if (text === "") return;
+
+            const now = new Date();
+            const newTask = {
+                text,
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString()
+            };
+
+            tasks.push(newTask);
+            saveToLocal();
+            renderTasks();
+
+            taskInput.value = "";
+        });
+
+        // Load tasks on page load
+        renderTasks();
+    </script>
+
+
+</body>
+
+</html>
